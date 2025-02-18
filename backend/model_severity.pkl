@@ -1,33 +1,51 @@
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingRegressor
+from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import StandardScaler
 import joblib
 
-# Symptom Severity Prediction Model
-data_severity = pd.DataFrame({
-    'symptom_score': [2, 5, 3, 7, 4],
-    'age': [25, 40, 35, 60, 30],
-    'stage': [1, 2, 1, 3, 2],
-    'severity': [0, 1, 0, 1, 0]
+# Generate synthetic dataset for better learning
+np.random.seed(42)
+data_size = 200  # Increase dataset size
+
+# Creating a more realistic dataset
+data = pd.DataFrame({
+    'age': np.random.randint(30, 85, data_size),
+    'stage': np.random.randint(1, 5, data_size),
+    'symptom_score': np.random.randint(1, 10, data_size),
+    'days_elapsed': np.random.randint(1, 365, data_size),
+    'treatment_received': np.random.randint(0, 2, data_size),  # 0 = No, 1 = Yes
+    'comorbidity_score': np.random.randint(0, 5, data_size),  # 0 = none, higher = more issues
 })
-X_severity = data_severity[['symptom_score', 'age', 'stage']]
-y_severity = data_severity['severity']
+
+# Create synthetic labels
+data['severity'] = (data['symptom_score'] > 5).astype(int)  # Binary label for severity
+data['future_symptom_score'] = data['symptom_score'] + np.random.randint(-2, 3, data_size)  # Slight symptom progression
+
+# --------------------------- SEVERITY PREDICTION ---------------------------
+X_severity = data[['symptom_score', 'age', 'stage', 'treatment_received', 'comorbidity_score']]
+y_severity = data['severity']
 
 X_train, X_test, y_train, y_test = train_test_split(X_severity, y_severity, test_size=0.2, random_state=42)
 
-model_severity = RandomForestClassifier()
-model_severity.fit(X_train, y_train)
-joblib.dump(model_severity, 'model_severity.pkl')
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
 
-# Symptom Prediction Model
-data_symptoms = pd.DataFrame({
-    'stage': [1, 2, 3, 4],
-    'days_elapsed': [10, 20, 30, 40],
-    'symptom_score': [2, 5, 7, 10]
-})
-X_symptoms = data_symptoms[['stage', 'days_elapsed']]
-y_symptoms = data_symptoms['symptom_score']
+severity_model = LogisticRegression()
+severity_model.fit(X_train_scaled, y_train)
+joblib.dump(severity_model, 'severity_model.pkl')
 
-model_symptoms = LinearRegression()
-model_symptoms.fit(X_symptoms, y_symptoms)
-joblib.dump(model_symptoms, 'model_symptoms.pkl')
+# --------------------------- SYMPTOM PROGRESSION PREDICTION ---------------------------
+X_symptoms = data[['stage', 'days_elapsed', 'treatment_received', 'comorbidity_score']]
+y_symptoms = data['future_symptom_score']
+
+X_train_sym, X_test_sym, y_train_sym, y_test_sym = train_test_split(X_symptoms, y_symptoms, test_size=0.2, random_state=42)
+
+symptom_model = GradientBoostingRegressor(n_estimators=100, learning_rate=0.1)
+symptom_model.fit(X_train_sym, y_train_sym)
+joblib.dump(symptom_model, 'symptom_model.pkl')
+
+print("Models trained and saved successfully!")

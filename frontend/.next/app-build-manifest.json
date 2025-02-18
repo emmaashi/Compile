@@ -21,6 +21,16 @@
       "static/chunks/main-app.js",
       "static/chunks/app/home/page.js"
     ],
+    "/profile/layout": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/profile/layout.js"
+    ],
+    "/profile/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/profile/page.js"
+    ],
     "/predictions/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -30,16 +40,6 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/predictions/page.js"
-    ],
-    "/sign-up/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sign-up/layout.js"
-    ],
-    "/sign-up/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/sign-up/page.js"
     ],
     "/visualizations/layout": [
       "static/chunks/webpack.js",
